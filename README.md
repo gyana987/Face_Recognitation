@@ -468,3 +468,4 @@ until `nvidia-cudnn-cu13` was upgraded to `9.23.2.1` (matching the system's
 own libcudnn). `run_local.py`'s `_ensure_gpu_libs_on_path()` handles the
 required `LD_LIBRARY_PATH` fix automatically — this is local-machine-specific
 and irrelevant once ported into AI_VMS's own containers.
+# Face_Recognitation
