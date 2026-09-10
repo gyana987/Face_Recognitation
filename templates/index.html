@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Missing Person Search</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: #14161a; color: #e8e8e8; margin: 0; padding: 20px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: #999; font-size: 13px; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+  .panel { background: #1e2126; border: 1px solid #2c3038; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .panel h2 { font-size: 14px; margin: 0 0 12px; color: #cfd3d8; text-transform: uppercase; letter-spacing: .04em; }
+  label { display: block; font-size: 12px; color: #aab; margin: 10px 0 4px; }
+  input[type=text], input[type=number] { width: 100%; padding: 7px 8px; background: #0f1114; border: 1px solid #333; color: #eee; border-radius: 5px; font-size: 13px; }
+  input[type=file] { font-size: 12px; }
+  button { cursor: pointer; border: none; border-radius: 6px; padding: 9px 14px; font-size: 13px; font-weight: 600; }
+  .btn-primary { background: #3b82f6; color: white; }
+  .btn-primary:disabled { background: #333a45; color: #777; cursor: not-allowed; }
+  .btn-danger { background: #ef4444; color: white; }
+  .btn-yes { background: #22c55e; color: white; }
+  .btn-no { background: #6b7280; color: white; }
+  .row { display: flex; gap: 8px; margin-top: 10px; }
+  .cam-row { border: 1px solid #2c3038; border-radius: 6px; padding: 10px; margin-bottom: 10px; position: relative; }
+  .cam-row .remove { position: absolute; top: 6px; right: 8px; background: none; color: #888; font-size: 16px; padding: 0 4px; }
+  #status-msg { font-size: 12px; margin-top: 8px; min-height: 16px; }
+  .ok { color: #4ade80; } .err { color: #f87171; }
+  .ref-preview { width: 100%; max-height: 180px; object-fit: contain; border-radius: 6px; margin-top: 8px; display: none; background: #0f1114; }
+  .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 12px; }
+  .video-tile { background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #2c3038; }
+  .video-tile img { width: 100%; display: block; }
+  .video-tile .label { padding: 6px 10px; font-size: 12px; color: #aab; background: #1e2126; }
+  #alert-banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; font-size: 15px; background: #2c3038; color: #888; transition: background .2s, color .2s; }
+  #alert-banner.active { background: #ec4899; color: #1a0a12; }
+  .confirm-box { display: none; margin-top: 10px; }
+  .confirm-box.show { display: block; }
+  #log-box { font-family: monospace; font-size: 11px; background: #0f1114; border-radius: 6px; padding: 10px; height: 160px; overflow-y: auto; color: #9aa; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<h1>Missing Person Search</h1>
+<div class="sub" id="model-status">Loading models…</div>
+
+<div id="alert-banner">SEARCHING…</div>
+
+<div class="grid">
+  <div>
+    <div class="panel">
+      <h2>1. Missing person photo</h2>
+      <input type="file" id="ref-file" accept="image/*">
+      <div class="row"><button class="btn-primary" id="upload-btn">Upload &amp; use</button></div>
+      <img id="ref-preview" class="ref-preview">
+      <div id="ref-status"></div>
+    </div>
+
+    <div class="panel">
+      <h2>2. Cameras</h2>
+      <div id="cam-rows"></div>
+      <button class="btn-primary" id="add-cam-btn" style="width:100%">+ Add camera</button>
+
+      <label>Similarity threshold</label>
+      <input type="number" id="threshold" value="0.40" min="0.1" max="0.9" step="0.01">
+      <label>Process every Nth frame</label>
+      <input type="number" id="every" value="5" min="1" step="1">
+
+      <div class="row">
+        <button class="btn-primary" id="start-btn" style="flex:1">Start Search</button>
+        <button class="btn-danger" id="stop-btn" style="flex:1">Stop</button>
+      </div>
+      <div id="status-msg"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Event log</h2>
+      <div id="log-box"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Live cameras</h2>
+      <div class="video-grid" id="video-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let camCounter = 0;
+
+function addCameraRow(id, video) {
+  camCounter++;
+  const row = document.createElement('div');
+  row.className = 'cam-row';
+  row.dataset.rowId = camCounter;
+  row.innerHTML = `
+    <button class="remove" onclick="this.parentElement.remove()">×</button>
+    <label>Camera ID</label>
+    <input type="text" class="cam-id" value="${id || 'cam' + camCounter}">
+    <label>Video source (file path / webcam index / rtsp://...)</label>
+    <input type="text" class="cam-src" value="${video || ''}" placeholder="e.g. Wildtrack/cam1.mp4 or rtsp://user:pass@ip:554/stream">
+  `;
+  document.getElementById('cam-rows').appendChild(row);
+}
+addCameraRow('cam1', '');
+addCameraRow('cam2', '');
+document.getElementById('add-cam-btn').onclick = () => addCameraRow();
+
+// ---- Models ready check ----
+async function pollReady() {
+  const r = await fetch('/api/ready');
+  const j = await r.json();
+  const el = document.getElementById('model-status');
+  if (j.ready) {
+    el.textContent = `Models ready (device: ${j.device})`;
+    return;
+  }
+  el.textContent = 'Loading models… (person detector + face recognition)';
+  setTimeout(pollReady, 1500);
+}
+pollReady();
+
+// ---- Upload reference photo ----
+document.getElementById('upload-btn').onclick = async () => {
+  const fileInput = document.getElementById('ref-file');
+  const statusEl = document.getElementById('ref-status');
+  if (!fileInput.files.length) { statusEl.innerHTML = '<span class="err">Choose a photo first.</span>'; return; }
+  const fd = new FormData();
+  fd.append('image', fileInput.files[0]);
+  statusEl.textContent = 'Uploading…';
+  const r = await fetch('/api/upload_reference', { method: 'POST', body: fd });
+  const j = await r.json();
+  if (j.ok) {
+    statusEl.innerHTML = `<span class="ok">Reference set (face confidence ${j.det_score})</span>`;
+    const img = document.getElementById('ref-preview');
+    img.src = j.image_url + '?t=' + Date.now();
+    img.style.display = 'block';
+  } else {
+    statusEl.innerHTML = `<span class="err">${j.error}</span>`;
+  }
+};
+
+// ---- Start / Stop ----
+document.getElementById('start-btn').onclick = async () => {
+  const cameras = [...document.querySelectorAll('.cam-row')].map(row => ({
+    camera_id: row.querySelector('.cam-id').value.trim(),
+    input_video: row.querySelector('.cam-src').value.trim(),
+  })).filter(c => c.camera_id && c.input_video);
+
+  if (!cameras.length) { setStatus('Add at least one camera with a video source.', true); return; }
+
+  const body = {
+    cameras,
+    similarity_threshold: parseFloat(document.getElementById('threshold').value),
+    every: parseInt(document.getElementById('every').value),
+  };
+  const r = await fetch('/api/start', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (j.ok) {
+    setStatus('Search running…', false);
+    buildVideoGrid(cameras.map(c => c.camera_id));
+  } else {
+    setStatus(j.error, true);
+  }
+};
+
+document.getElementById('stop-btn').onclick = async () => {
+  await fetch('/api/stop', { method: 'POST' });
+  setStatus('Stopped.', false);
+};
+
+function setStatus(msg, isErr) {
+  const el = document.getElementById('status-msg');
+  el.innerHTML = `<span class="${isErr ? 'err' : 'ok'}">${msg}</span>`;
+}
+
+function buildVideoGrid(cameraIds) {
+  const grid = document.getElementById('video-grid');
+  grid.innerHTML = '';
+  cameraIds.forEach(id => {
+    const tile = document.createElement('div');
+    tile.className = 'video-tile';
+    tile.innerHTML = `<img src="/video/${id}"><div class="label">${id}</div>`;
+    grid.appendChild(tile);
+  });
+}
+
+// ---- Status polling: alert banner, pending candidate confirm box, log ----
+let lastCandidateId = null;
+
+async function pollStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const j = await r.json();
+
+    const banner = document.getElementById('alert-banner');
+    banner.textContent = j.alert.text;
+    banner.classList.toggle('active', j.alert.active);
+
+    renderCandidate(j.pending_candidate);
+
+    const logBox = document.getElementById('log-box');
+    logBox.textContent = j.log.join('\n');
+    logBox.scrollTop = logBox.scrollHeight;
+  } catch (e) { /* ignore transient errors */ }
+  setTimeout(pollStatus, 1000);
+}
+pollStatus();
+
+function renderCandidate(candidate) {
+  let box = document.getElementById('confirm-box');
+  if (!candidate) {
+    if (box) box.classList.remove('show');
+    lastCandidateId = null;
+    return;
+  }
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'confirm-box';
+    box.className = 'confirm-box';
+    document.getElementById('alert-banner').insertAdjacentElement('afterend', box);
+  }
+  if (candidate.id !== lastCandidateId) {
+    lastCandidateId = candidate.id;
+    box.innerHTML = `
+      <div class="panel" style="margin-bottom:0">
+        <div style="font-size:13px;margin-bottom:8px">
+          Candidate on <b>${candidate.camera_id}</b> — similarity ${candidate.similarity}
+        </div>
+        <img src="${candidate.image_url}" style="width:100%;border-radius:6px;margin-bottom:10px">
+        <div class="row">
+          <button class="btn-yes" style="flex:1" onclick="confirmDecision('yes')">Yes, this is them — stop</button>
+          <button class="btn-no" style="flex:1" onclick="confirmDecision('no')">No, keep searching</button>
+        </div>
+      </div>`;
+  }
+  box.classList.add('show');
+}
+
+async function confirmDecision(decision) {
+  await fetch('/api/confirm', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({decision}) });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+
+# Wildtrack is a downloaded public dataset (videos, thousands of dataset
+# images, calibration/annotation files) -- not project code, not tracked.
+Wildtrack/
+
+# Video/media data -- large, not code. Reference photos are small and kept.
+input/*.mp4
+output/
+output_demo/*.mp4
+output_demo/merge_log.txt
+
+# Model weights (downloaded separately -- yolov8n.pt is tiny and IS tracked,
+# but keep this here in case larger weights ever get added)
+*.onnx
+
+# Logs / scratch / lock files
+*.log
+*log*.txt
+.~lock.*#

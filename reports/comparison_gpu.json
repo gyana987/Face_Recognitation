@@ -1,0 +1,55 @@
+{
+  "video": "input/video.mp4",
+  "frames_sampled": 30,
+  "crops_tested": 181,
+  "results": [
+    {
+      "model": "InsightFace (buffalo_l/det_10g)",
+      "device": "cuda",
+      "load_time_s": 1.46,
+      "crops_tested": 181,
+      "avg_latency_ms": 29.82,
+      "median_latency_ms": 31.8,
+      "p95_latency_ms": 34.19,
+      "total_detections": 103,
+      "crops_with_a_face": 101,
+      "avg_detections_per_crop": 0.569,
+      "avg_confidence": 0.7036,
+      "median_confidence": 0.7217,
+      "min_confidence": 0.5059,
+      "max_confidence": 0.8673
+    },
+    {
+      "model": "MediaPipe Face Detection",
+      "device": "cpu",
+      "load_time_s": 0.767,
+      "crops_tested": 181,
+      "avg_latency_ms": 9.89,
+      "median_latency_ms": 8.76,
+      "p95_latency_ms": 15.01,
+      "total_detections": 94,
+      "crops_with_a_face": 93,
+      "avg_detections_per_crop": 0.519,
+      "avg_confidence": 0.7481,
+      "median_confidence": 0.7546,
+      "min_confidence": 0.6046,
+      "max_confidence": 0.9039
+    },
+    {
+      "model": "YOLOFace (yolov8n-face)",
+      "device": "cuda",
+      "load_time_s": 0.195,
+      "crops_tested": 181,
+      "avg_latency_ms": 10.26,
+      "median_latency_ms": 5.18,
+      "p95_latency_ms": 41.04,
+      "total_detections": 107,
+      "crops_with_a_face": 103,
+      "avg_detections_per_crop": 0.591,
+      "avg_confidence": 0.6716,
+      "median_confidence": 0.7467,
+      "min_confidence": 0.3064,
+      "max_confidence": 0.8639
+    }
+  ]
+}
