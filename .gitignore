@@ -20,3 +20,6 @@ output_demo/merge_log.txt
 *.log
 *log*.txt
 .~lock.*#
+
+# Internal reports/benchmarks -- not project code, not tracked.
+reports/
