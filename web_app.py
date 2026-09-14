@@ -12,6 +12,7 @@ Run:
 """
 import logging
 import os
+import subprocess
 import threading
 import time
 import uuid
@@ -129,11 +130,10 @@ def camera_worker(camera_id, input_video, start_time_sec, person_model, matcher,
                    stop_event, prompt_lock, similarity_threshold, every):
     log = logging.getLogger(f"Camera[{camera_id}]")
     # input_video is either a webcam's integer device index (e.g. "0") or
-    # an .mp4 file path. A camera id is live (no pacing needed); an .mp4
-    # file gets real-time pacing so it doesn't race through faster than it
-    # was actually recorded.
+    # an .mp4 file path -- either way this is a SEARCH tool, not a player,
+    # so recorded files are processed as fast as the hardware allows rather
+    # than throttled to their original real-time recording speed.
     is_camera_id = str(input_video).strip().isdigit()
-    is_file_source = not is_camera_id and str(input_video).strip().lower().endswith(".mp4")
     source = int(input_video) if is_camera_id else input_video
 
     cap = cv2.VideoCapture(source)
@@ -148,8 +148,7 @@ def camera_worker(camera_id, input_video, start_time_sec, person_model, matcher,
     if start_time_sec > 0:
         cap.set(cv2.CAP_PROP_POS_MSEC, start_time_sec * 1000)
 
-    video_fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
-    pace_seconds_per_kept_frame = every / video_fps if is_file_source else 0.0
+    pace_seconds_per_kept_frame = 0.0
     next_frame_due_at = time.monotonic()
 
     rejected_track_ids = set()
@@ -211,7 +210,7 @@ def camera_worker(camera_id, input_video, start_time_sec, person_model, matcher,
             if is_match:
                 match_this_frame = (track_id, similarity)
                 cv2.rectangle(annotated, (gx1, gy1), (gx2, gy2), PINK_BGR, 3)
-                cv2.putText(annotated, f"MATCH sim={similarity:.2f}", (gx1, max(0, gy1 - 8)),
+                cv2.putText(annotated, f"FOUND on {camera_id}", (gx1, max(0, gy1 - 8)),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, PINK_BGR, 2, cv2.LINE_AA)
             else:
                 cv2.rectangle(annotated, (gx1, gy1), (gx2, gy2), (0, 200, 0), 2)
@@ -222,7 +221,7 @@ def camera_worker(camera_id, input_video, start_time_sec, person_model, matcher,
         if match_this_frame is not None:
             track_id, similarity = match_this_frame
             with state_lock:
-                state["alert"] = {"active": True, "text": f"PERSON FOUND on {camera_id} (sim={similarity:.2f})"}
+                state["alert"] = {"active": True, "text": f"PERSON FOUND on {camera_id}"}
             with prompt_lock:
                 if stop_event.is_set():
                     break
@@ -445,4 +444,35 @@ def video_feed(camera_id):
 
 
 if __name__ == "__main__":
+    import webbrowser
+
+    def open_browser():
+        # small delay so the browser doesn't try to connect before Flask
+        # has actually started listening
+        time.sleep(1.5)
+        # A packaged (PyInstaller) build sets LD_LIBRARY_PATH to its own
+        # bundled library directory, and that leaks into any subprocess
+        # launched from here -- including the browser. A real browser
+        # binary then tries to load PyInstaller's (older, bundled)
+        # libgobject/libglib instead of its own and crashes with a symbol
+        # lookup error. PyInstaller preserves the pre-bundle value under
+        # LD_LIBRARY_PATH_ORIG specifically so launched subprocesses can
+        # restore it; a non-frozen run just has no LD_LIBRARY_PATH to worry
+        # about, so this is a no-op there.
+        env = os.environ.copy()
+        if "LD_LIBRARY_PATH_ORIG" in env:
+            env["LD_LIBRARY_PATH"] = env["LD_LIBRARY_PATH_ORIG"]
+        else:
+            env.pop("LD_LIBRARY_PATH", None)
+        try:
+            controller = webbrowser.get()
+            if hasattr(controller, "name"):
+                subprocess.Popen([controller.name, "http://127.0.0.1:5000"], env=env,
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            else:
+                webbrowser.open("http://127.0.0.1:5000")
+        except Exception:
+            webbrowser.open("http://127.0.0.1:5000")
+
+    threading.Thread(target=open_browser, daemon=True).start()
     app.run(host="0.0.0.0", port=5000, threaded=True)

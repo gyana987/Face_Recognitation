@@ -119,7 +119,14 @@ class FaceMatcher:
         from insightface.app import FaceAnalysis
         providers = ["CUDAExecutionProvider", "CPUExecutionProvider"] if device != "cpu" \
             else ["CPUExecutionProvider"]
-        self.face_app = FaceAnalysis(name="buffalo_l", providers=providers)
+        # allowed_modules restricts buffalo_l to only the 2 models we actually
+        # use (detection for the bbox, recognition for the embedding) --
+        # without this, InsightFace also runs landmark_2d_106, landmark_3d_68
+        # and genderage per face on every frame even though nothing reads
+        # their output, which matters a lot when face-matching falls back to
+        # CPU (see FaceMatcher class docstring).
+        self.face_app = FaceAnalysis(name="buffalo_l", providers=providers,
+                                      allowed_modules=["detection", "recognition"])
         self.face_app.prepare(ctx_id=-1 if device == "cpu" else 0, det_size=det_size)
         self.min_face_px = min_face_px
         self.lock = threading.Lock()

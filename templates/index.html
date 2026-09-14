@@ -158,7 +158,9 @@ document.getElementById('start-btn').onclick = async () => {
   const j = await r.json();
   if (j.ok) {
     setStatus('Search running…', false);
-    buildVideoGrid(cameras.map(c => c.camera_id));
+    const ids = cameras.map(c => c.camera_id);
+    buildVideoGrid(ids);
+    videoGridCameraIds = ids.join(',');
   } else {
     setStatus(j.error, true);
   }
@@ -187,6 +189,7 @@ function buildVideoGrid(cameraIds) {
 
 // ---- Status polling: alert banner, pending candidate confirm box, log ----
 let lastCandidateId = null;
+let videoGridCameraIds = null;  // camera_ids the grid was last built for -- rebuild only when this changes
 
 async function pollStatus() {
   try {
@@ -202,6 +205,21 @@ async function pollStatus() {
     const logBox = document.getElementById('log-box');
     logBox.textContent = j.log.join('\n');
     logBox.scrollTop = logBox.scrollHeight;
+
+    // A search already running when this page loads/reloads (or a second
+    // tab pointed at the same server) never goes through the Start Search
+    // click handler -- rebuild the live-camera grid here too, whenever the
+    // running camera list differs from what's currently shown.
+    if (j.running && j.camera_ids && j.camera_ids.length) {
+      const key = j.camera_ids.join(',');
+      if (key !== videoGridCameraIds) {
+        buildVideoGrid(j.camera_ids);
+        videoGridCameraIds = key;
+      }
+    } else if (!j.running && videoGridCameraIds !== null) {
+      document.getElementById('video-grid').innerHTML = '';
+      videoGridCameraIds = null;
+    }
   } catch (e) { /* ignore transient errors */ }
   setTimeout(pollStatus, 1000);
 }

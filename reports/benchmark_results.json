@@ -1,0 +1,387 @@
+{
+  "device": "cuda",
+  "gpu_mem_idle_mb": 718,
+  "model_size": {
+    "buffalo_l_disk_mb": 325.5,
+    "buffalo_l_submodels": {
+      "det_10g.onnx (detection)": 16.9,
+      "2d106det.onnx (2D landmarks)": 5.0,
+      "1k3d68.onnx (3D landmarks)": 143.6,
+      "genderage.onnx (age/gender)": 1.3,
+      "w600k_r50.onnx (recognition/ArcFace)": 174.4
+    },
+    "yolov8n_disk_mb": 6.2,
+    "yolo_load_time_s": 0.13,
+    "insightface_load_time_s": 1.77,
+    "gpu_mem_idle_mb": 718,
+    "gpu_mem_after_yolo_mb": 718,
+    "gpu_mem_after_insightface_mb": 1419,
+    "yolo_gpu_footprint_mb": 0,
+    "insightface_gpu_footprint_mb": 701
+  },
+  "resolution_latency": {
+    "720p": {
+      "resolution": "1280x720",
+      "yolo_imgsz": 960,
+      "avg_people_detected": 21.0,
+      "detection_ms_mean": 15.3,
+      "face_stage_ms_mean": 554.4,
+      "total_ms_mean": 569.7,
+      "fps_equivalent": 1.76,
+      "gpu_mem_used_mb": 1651
+    },
+    "1080p": {
+      "resolution": "1920x1080",
+      "yolo_imgsz": 960,
+      "avg_people_detected": 21.0,
+      "detection_ms_mean": 14.7,
+      "face_stage_ms_mean": 514.3,
+      "total_ms_mean": 529.1,
+      "fps_equivalent": 1.89,
+      "gpu_mem_used_mb": 1861
+    },
+    "4K": {
+      "resolution": "3840x2160",
+      "yolo_imgsz": 1280,
+      "avg_people_detected": 28.0,
+      "detection_ms_mean": 21.7,
+      "face_stage_ms_mean": 656.7,
+      "total_ms_mean": 678.4,
+      "fps_equivalent": 1.47,
+      "gpu_mem_used_mb": 1901
+    }
+  },
+  "camera_scaling": {
+    "1_camera(s)": {
+      "cameras_used": [
+        "Wildtrack/cam2.mp4"
+      ],
+      "wall_time_s": 20.02,
+      "per_camera": {
+        "cam1": {
+          "frames": 40,
+          "mean_ms": 496.1,
+          "fps": 2.02
+        }
+      },
+      "combined_throughput_fps": 2.0,
+      "avg_per_camera_fps": 2.02
+    },
+    "2_camera(s)": {
+      "cameras_used": [
+        "Wildtrack/cam2.mp4",
+        "Wildtrack/cam3.mp4"
+      ],
+      "wall_time_s": 46.04,
+      "per_camera": {
+        "cam1": {
+          "frames": 40,
+          "mean_ms": 972.3,
+          "fps": 1.03
+        },
+        "cam2": {
+          "frames": 40,
+          "mean_ms": 1145.3,
+          "fps": 0.87
+        }
+      },
+      "combined_throughput_fps": 1.74,
+      "avg_per_camera_fps": 0.95
+    },
+    "3_camera(s)": {
+      "cameras_used": [
+        "Wildtrack/cam2.mp4",
+        "Wildtrack/cam3.mp4",
+        "Wildtrack/cam4.mp4"
+      ],
+      "wall_time_s": 63.36,
+      "per_camera": {
+        "cam1": {
+          "frames": 40,
+          "mean_ms": 1381.3,
+          "fps": 0.72
+        },
+        "cam3": {
+          "frames": 40,
+          "mean_ms": 1439.2,
+          "fps": 0.69
+        },
+        "cam2": {
+          "frames": 40,
+          "mean_ms": 1578.9,
+          "fps": 0.63
+        }
+      },
+      "combined_throughput_fps": 1.89,
+      "avg_per_camera_fps": 0.68
+    },
+    "4_camera(s)": {
+      "cameras_used": [
+        "Wildtrack/cam2.mp4",
+        "Wildtrack/cam3.mp4",
+        "Wildtrack/cam4.mp4",
+        "Wildtrack/cam5.mp4"
+      ],
+      "wall_time_s": 88.05,
+      "per_camera": {
+        "cam1": {
+          "frames": 40,
+          "mean_ms": 1835.8,
+          "fps": 0.54
+        },
+        "cam3": {
+          "frames": 40,
+          "mean_ms": 1988.1,
+          "fps": 0.5
+        },
+        "cam4": {
+          "frames": 40,
+          "mean_ms": 2183.0,
+          "fps": 0.46
+        },
+        "cam2": {
+          "frames": 40,
+          "mean_ms": 2195.8,
+          "fps": 0.46
+        }
+      },
+      "combined_throughput_fps": 1.82,
+      "avg_per_camera_fps": 0.49
+    }
+  },
+  "per_face_latency": {
+    "num_crops_tested": 10,
+    "num_calls": 50,
+    "mean_ms": 25.23,
+    "min_ms": 15.16,
+    "max_ms": 44.17
+  },
+  "person_count_dependency": [
+    {
+      "frame": 500,
+      "people_detected": 22,
+      "faces_found": 12,
+      "detection_ms": 33.5,
+      "face_stage_ms": 649.0,
+      "total_ms": 682.5
+    },
+    {
+      "frame": 2000,
+      "people_detected": 18,
+      "faces_found": 4,
+      "detection_ms": 16.5,
+      "face_stage_ms": 390.6,
+      "total_ms": 407.1
+    },
+    {
+      "frame": 4000,
+      "people_detected": 16,
+      "faces_found": 6,
+      "detection_ms": 21.1,
+      "face_stage_ms": 415.6,
+      "total_ms": 436.8
+    },
+    {
+      "frame": 6000,
+      "people_detected": 25,
+      "faces_found": 8,
+      "detection_ms": 16.0,
+      "face_stage_ms": 602.3,
+      "total_ms": 618.3
+    },
+    {
+      "frame": 8000,
+      "people_detected": 22,
+      "faces_found": 4,
+      "detection_ms": 20.0,
+      "face_stage_ms": 450.5,
+      "total_ms": 470.5
+    },
+    {
+      "frame": 10000,
+      "people_detected": 19,
+      "faces_found": 3,
+      "detection_ms": 14.5,
+      "face_stage_ms": 400.7,
+      "total_ms": 415.2
+    },
+    {
+      "frame": 12000,
+      "people_detected": 23,
+      "faces_found": 8,
+      "detection_ms": 14.7,
+      "face_stage_ms": 572.3,
+      "total_ms": 587.0
+    },
+    {
+      "frame": 15000,
+      "people_detected": 23,
+      "faces_found": 6,
+      "detection_ms": 15.9,
+      "face_stage_ms": 507.1,
+      "total_ms": 523.0
+    }
+  ],
+  "min_face_pixel": {
+    "base_face_px": 161,
+    "base_person_crop_shape": [
+      606,
+      615,
+      3
+    ],
+    "shrink_test": [
+      {
+        "shrink_factor": 1.0,
+        "person_crop_size": "615x606",
+        "approx_face_px_before_upscale": 161.0,
+        "raw_detected": true,
+        "raw_det_score": 0.72,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 1.0,
+          "detected": true,
+          "det_score": 0.72,
+          "resulting_face_px": 161
+        }
+      },
+      {
+        "shrink_factor": 0.8,
+        "person_crop_size": "492x484",
+        "approx_face_px_before_upscale": 128.8,
+        "raw_detected": true,
+        "raw_det_score": 0.713,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 1.0,
+          "detected": true,
+          "det_score": 0.713,
+          "resulting_face_px": 129
+        }
+      },
+      {
+        "shrink_factor": 0.6,
+        "person_crop_size": "369x363",
+        "approx_face_px_before_upscale": 96.6,
+        "raw_detected": true,
+        "raw_det_score": 0.706,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 1.0,
+          "detected": true,
+          "det_score": 0.706,
+          "resulting_face_px": 96
+        }
+      },
+      {
+        "shrink_factor": 0.5,
+        "person_crop_size": "307x303",
+        "approx_face_px_before_upscale": 80.5,
+        "raw_detected": true,
+        "raw_det_score": 0.713,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 1.0,
+          "detected": true,
+          "det_score": 0.713,
+          "resulting_face_px": 80
+        }
+      },
+      {
+        "shrink_factor": 0.4,
+        "person_crop_size": "246x242",
+        "approx_face_px_before_upscale": 64.4,
+        "raw_detected": true,
+        "raw_det_score": 0.706,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 1.0,
+          "detected": true,
+          "det_score": 0.706,
+          "resulting_face_px": 64
+        }
+      },
+      {
+        "shrink_factor": 0.32,
+        "person_crop_size": "196x193",
+        "approx_face_px_before_upscale": 51.5,
+        "raw_detected": true,
+        "raw_det_score": 0.704,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 1.14,
+          "detected": true,
+          "det_score": 0.705,
+          "resulting_face_px": 58
+        }
+      },
+      {
+        "shrink_factor": 0.25,
+        "person_crop_size": "153x151",
+        "approx_face_px_before_upscale": 40.2,
+        "raw_detected": true,
+        "raw_det_score": 0.714,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 1.46,
+          "detected": true,
+          "det_score": 0.715,
+          "resulting_face_px": 58
+        }
+      },
+      {
+        "shrink_factor": 0.2,
+        "person_crop_size": "123x121",
+        "approx_face_px_before_upscale": 32.2,
+        "raw_detected": true,
+        "raw_det_score": 0.702,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 1.82,
+          "detected": true,
+          "det_score": 0.704,
+          "resulting_face_px": 59
+        }
+      },
+      {
+        "shrink_factor": 0.15,
+        "person_crop_size": "92x90",
+        "approx_face_px_before_upscale": 24.1,
+        "raw_detected": true,
+        "raw_det_score": 0.69,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 2.44,
+          "detected": true,
+          "det_score": 0.692,
+          "resulting_face_px": 59
+        }
+      },
+      {
+        "shrink_factor": 0.1,
+        "person_crop_size": "61x60",
+        "approx_face_px_before_upscale": 16.1,
+        "raw_detected": true,
+        "raw_det_score": 0.59,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 3.67,
+          "detected": true,
+          "det_score": 0.599,
+          "resulting_face_px": 57
+        }
+      },
+      {
+        "shrink_factor": 0.07,
+        "person_crop_size": "43x42",
+        "approx_face_px_before_upscale": 11.3,
+        "raw_detected": true,
+        "raw_det_score": 0.6,
+        "with_pipeline_upscale_gate": {
+          "upscale_applied": 4.0,
+          "detected": true,
+          "det_score": 0.625,
+          "resulting_face_px": 44
+        }
+      }
+    ]
+  },
+  "source_videos_used": {
+    "single_source": "Wildtrack/cam2.mp4",
+    "scaling_test": [
+      "Wildtrack/cam2.mp4",
+      "Wildtrack/cam3.mp4",
+      "Wildtrack/cam4.mp4",
+      "Wildtrack/cam5.mp4"
+    ]
+  }
+}
